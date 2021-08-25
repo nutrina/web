@@ -3503,20 +3503,29 @@ def get_clr_sybil_input(request, round_id):
         This returns a paginated JSON response to return contributions
         which are considered while calculating the QF match for a given CLR
     '''
-    token = request.headers['token']
+    token = request.headers.get('token', None)
     page = request.GET.get('page', 1)
 
     data = StaticJsonEnv.objects.get(key='BSCI_SYBIL_TOKEN').data
 
     if not round_id or not token or not data['token']:
-        return HttpResponseBadRequest("error: missing arguments")
+        return JsonResponse(
+            { 'success': False, 'message': "error: missing arguments"},
+            status=400
+        )
 
     if token != data['token']:
-        return HttpResponseBadRequest("error: invalid token")
+        return JsonResponse(
+            { 'success': False, 'message': "error: invalid token"},
+            status=400
+        )
 
     clr = GrantCLR.objects.filter(pk=round_id).first()
     if not clr:
-        return HttpResponseBadRequest("error: round not found")
+        return JsonResponse(
+            { 'success': False, 'message': "error: clr round not found"},
+            status=400
+        )
 
     try:
         limit = data['limit'] if data['limit'] else 100
@@ -3545,7 +3554,7 @@ def get_clr_sybil_input(request, round_id):
                 },
                 'contributions': []
             }
-            return HttpResponse(response)
+            return JsonResponse(response)
 
         response = {
             'metadata': {
@@ -3559,7 +3568,10 @@ def get_clr_sybil_input(request, round_id):
 
     except Exception as e:
         print(e)
-        return HttpResponseServerError()
+        return JsonResponse(
+            { 'success': False, 'message': "error: server error"},
+            status=500
+        )
 
     return JsonResponse(response)
 

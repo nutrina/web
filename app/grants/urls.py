@@ -115,6 +115,6 @@ urlpatterns = [
     path('v1/api/export_info/grant<int:grant_id>_round<int:round_id>.json', contribution_info_from_grant_during_round_as_json, name='contribution_addr_from_grant_during_round_as_json'),
 
     # custom API
-    path('v1/api/get-clr-data/<int:round_id>', get_clr_sybil_input, name='get_clr_sybil_input')
+    path('v1/api/clr-data/<int:round_id>', get_clr_sybil_input, name='get_clr_sybil_input')
 
 ]
